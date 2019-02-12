@@ -1,9 +1,9 @@
 const os = require('os');
-const domain = "http://localhost:8001/"
 const fs = require('fs');
 const express = require('express');
 const WebTorrent = require('webtorrent-hybrid');
 var client = new WebTorrent()
+const config = require('./config');
 var seedsList = []
 const router = express.Router();
 // const Vue = require('vue')
@@ -26,7 +26,7 @@ function refreshSeeds(){
   rows.forEach((row) => {
     console.log(row.name);
     if(getRowById(row.id)==undefined){
-      client.seed(row.filePath,{announce:domain},function(torrent){
+      client.seed(row.filePath,{announce:config.rootUrl},function(torrent){
         row.magnetURL = torrent.magnetURI
         tmpSeeds.push(row)
         console.log("do SEED "+torrent.magnetURI)

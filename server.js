@@ -17,6 +17,7 @@ app.use(fileUpload({
 }));
 
 const mainRoute = require('./router');
+const config = require('./config');
 app.use(bodyParser.json());
 let options = {
     // folder with your views

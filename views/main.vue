@@ -2,7 +2,7 @@
     <div>
         <h2>Start</h2>
         <p><a href="/upload" >Go to upload</a></p>
-        <p>All the seeds</p>
+        <p>All the seeds - if you don't see your entry, try reload the page</p>
         <table>
         <tr v-for="item in seeds">
           <td>{{ item.title }}</td>
