@@ -7,8 +7,8 @@
         <tr v-for="item in seeds">
           <td>{{ item.title }}</td>
           <td>{{ item.filePath }}</td>
-          <td>{{ item.magnetURL }}</td>
-          <td><a :href="'/delete/'+item.id">{{ item.magnetURL }}</a></td>
+          <td><a :href="item.magnetURL">{{ item.magnetURL }}</a></td>
+          <td><a :href="'/delete/'+item.id">Delete</a></td>
         </tr>
       </table>
     </div>

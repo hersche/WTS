@@ -11,13 +11,13 @@ const sqlite3 = require('sqlite3').verbose();
 let db = new sqlite3.Database('./wts.db');
 db.run('CREATE TABLE IF NOT EXISTS seeds (id INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR(100),filePath VARCHAR(255), magnetURL TEXT);', [], (err) => {  
   if (err) {
-    console.log('ERROR!', err)
+    console.log('ERROR ON CREATE TABLE!', err)
   }
+  refreshSeeds();
 })
-refreshSeeds();
+
 
 function refreshSeeds(){
-  // seedsList = []
   var tmpSeeds = []
   db.all("SELECT * FROM seeds", [], (err, rows) => {
   if (err) {
