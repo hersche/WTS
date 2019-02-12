@@ -1,5 +1,19 @@
 ## This is a very short-developed webtorrent-seeder for permanent servers
 
+THIS PROJECT IS VERY UNPROPER!
+
+It's
+
+- my first expirience with Node / serverside-JS / express-JS
+- a thing i was waiting for, but i did not found it
+- a short work and learn of ~15h (will increase for quality, maybe)
+- a additional to LaraTube
+
+Ideas
+
+- Place encoding for video-files there
+- After upload, be able to place it directly into the wanted service (eg create the video in PeerTube/LaraTube) (Oauth2-stage)
+
 Try it with 
   
   node server.js
@@ -13,6 +27,8 @@ Try it with
 Then, create a config.js-file with config.example.js
 
 ## Auth-idea 
+
+Final: Oauth2
 
 Via base-auth on nginx for a first.
 
