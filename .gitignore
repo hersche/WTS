@@ -3,3 +3,4 @@ wts.db
 node_modules/*
 package-lock.json
 config.js
+chromedriver.log
