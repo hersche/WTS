@@ -28,7 +28,6 @@ app.get('/logintest',
     console.log("login-test-success")
     res.redirect('/');
   });
-);
 app.get('/auth/callback',
   passport.authorize('oauth2', { failureRedirect: '/login' }),
   function(req, res) {
