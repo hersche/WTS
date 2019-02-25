@@ -1,5 +1,6 @@
 const os = require('os');
 const fs = require('fs');
+const passport = require('passport'), OAuth2Strategy = require('passport-oauth2')
 const express = require('express');
 const WebTorrent = require('webtorrent-hybrid');
 var client = new WebTorrent()
@@ -83,12 +84,11 @@ router.route('/delete/:id').get((req, res, next) => {
   res.render('delete', { seeds: seedsList }, { plain: true, inlineCSS: false });  
 });
 
-router.route('/upload').get((req, res, next) => {
-    let data = function() {
-        tree: []
-    };
-    res.render('upload', { myVar1: 'my variable one' }, { plain: true, inlineCSS: false });
-});
+
+
+//router.route('/upload').get((req, res, next) => {
+  //  res.render('upload', { myVar1: 'my variable one' }, { plain: true, inlineCSS: false });
+//});
 router.route('/upload').post((req, res, next) => {
   req.files.theFile.mv("uploads/"+req.files.theFile.name)
   console.log(req.files.theFile); // the uploaded file object

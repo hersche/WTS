@@ -11,29 +11,42 @@ app.use(morgan('combined'));
 const bodyParser = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
 let db = new sqlite3.Database('./wts.db');
-var passport = require('passport'), OAuth2Strategy = require('passport-oauth2')
+const passport = require('passport'), OAuth2Strategy = require('passport-oauth2')
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new OAuth2Strategy(config.oauth2,
   function(accessToken, refreshToken, profile, cb) {
-    User.findOrCreate({ exampleId: profile.id }, function (err, user) {
-      return cb(err, user);
-    });
+    //User.findOrCreate({ exampleId: profile.id }, function (err, user) {
+      //return cb(err, user);
+    //});
   }
 ));
-
+app.get('/logintest',
+  passport.authorize('oauth2', { failureRedirect: '/login' }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    console.log("login-test-success")
+    res.redirect('/');
+  });
+);
 app.get('/auth/callback',
-  passport.authenticate('oauth2', { failureRedirect: '/login' }),
+  passport.authorize('oauth2', { failureRedirect: '/login' }),
   function(req, res) {
     // Successful authentication, redirect home.
     res.redirect('/');
   });
+  
+  app.get('/upload',
+    passport.authorize('oauth2', { failureRedirect: '/login' }),
+    function(req, res) {
+      res.render('upload', { myVar1: 'my variable one' }, { plain: true, inlineCSS: false });
+    });
 app.get('/login',
   passport.authenticate('oauth2'));
+
 app.use(fileUpload({
   limits: { fileSize: 50 * 1024 * 1024* 1024 },
 }));
-
 const mainRoute = require('./router');
 app.use(bodyParser.json());
 let options = {
