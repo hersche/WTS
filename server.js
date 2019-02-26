@@ -16,13 +16,17 @@ app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new OAuth2Strategy(config.oauth2,
   function(accessToken, refreshToken, profile, cb) {
+    console.log("LOGIN WITH",profile)
+    console.log("ACCESS TOKEN LOGIN WITH",accessToken)
+    console.log("REFRESH TOKEN LOGIN WITH",refreshToken)
     //User.findOrCreate({ exampleId: profile.id }, function (err, user) {
-      //return cb(err, user);
+      return cb(err, user);
     //});
   }
 ));
+const { ensureLoggedIn } = require('connect-ensure-login');
 app.get('/logintest',
-  passport.authorize('oauth2', { failureRedirect: '/login' }),
+  ensureLoggedIn('/login'),
   function(req, res) {
     // Successful authentication, redirect home.
     console.log("login-test-success")
@@ -32,16 +36,20 @@ app.get('/auth/callback',
   passport.authorize('oauth2', { failureRedirect: '/login' }),
   function(req, res) {
     // Successful authentication, redirect home.
+    console.log("CALLBACK success")
     res.redirect('/');
   });
   
   app.get('/upload',
-    passport.authorize('oauth2', { failureRedirect: '/login' }),
+    ensureLoggedIn('/login'),
     function(req, res) {
       res.render('upload', { myVar1: 'my variable one' }, { plain: true, inlineCSS: false });
     });
 app.get('/login',
-  passport.authenticate('oauth2'));
+  passport.authenticate('oauth2', {
+  session: true,
+  successReturnToOrRedirect: '/'
+}));
 
 app.use(fileUpload({
   limits: { fileSize: 50 * 1024 * 1024* 1024 },
