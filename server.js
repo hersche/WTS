@@ -1,6 +1,7 @@
 
 const vueRenderer = require('@doweb/vuexpress').vueRenderer;
 const express = require('express');
+const axios = require('axios')
 var config = require('./config');
 const fileUpload = require('express-fileupload');
 const morgan = require('morgan');
@@ -11,6 +12,7 @@ app.use(morgan('combined'));
 const bodyParser = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
 let db = new sqlite3.Database('./wts.db');
+var ui = 0
 const passport = require('passport'), OAuth2Strategy = require('passport-oauth2')
 app.use(passport.initialize());
 app.use(passport.session());
@@ -20,7 +22,27 @@ passport.use(new OAuth2Strategy(config.oauth2,
     console.log("ACCESS TOKEN LOGIN WITH",accessToken)
     console.log("REFRESH TOKEN LOGIN WITH",refreshToken)
     //User.findOrCreate({ exampleId: profile.id }, function (err, user) {
-      return cb(err, user);
+      ui++
+      var aconfig = {
+    headers: {'Authorization': "bearer " + accessToken}
+};
+
+var bodyParameters = {
+   key: "value"
+}
+console.log("OAUTH-GEEEEET")
+Axios.get( 
+  config.oauth2.rootURL+'api/user',
+  bodyParameters,
+  aconfig
+).then((response) => {
+  console.log("OAUTH-GEEEEET")
+  console.log(response)
+  return cb(err, response);
+}).catch((error) => {
+  console.log(error)
+});
+      
     //});
   }
 ));
@@ -37,6 +59,7 @@ app.get('/auth/callback',
   function(req, res) {
     // Successful authentication, redirect home.
     console.log("CALLBACK success")
+    
     res.redirect('/');
   });
   
