@@ -23,6 +23,7 @@ passport.use(new OAuth2Strategy(config.oauth2,
     console.log("REFRESH TOKEN LOGIN WITH",refreshToken)
     //User.findOrCreate({ exampleId: profile.id }, function (err, user) {
       ui++
+      if(accessToken!=''){
       var aconfig = {
     headers: {'Authorization': "bearer " + accessToken}
 };
@@ -38,10 +39,14 @@ Axios.get(
 ).then((response) => {
   console.log("OAUTH-GEEEEET")
   console.log(response)
-  return cb(err, response);
+  return cb(false, response);
 }).catch((error) => {
   console.log(error)
+  return cb(false, false);
 });
+} else {
+  return cb(false, false);
+}
       
     //});
   }
