@@ -1,6 +1,7 @@
 
 const vueRenderer = require('@doweb/vuexpress').vueRenderer;
 const express = require('express');
+
 const axios = require('axios')
 var config = require('./config');
 const fileUpload = require('express-fileupload');
@@ -8,6 +9,14 @@ const morgan = require('morgan');
 require('http').globalAgent.options.rejectUnauthorized = false;
 require('https').globalAgent.options.rejectUnauthorized = false;
 const app = express();
+const session = require('express-session');
+
+app.use(session({
+  secret: 'lulSec(cause@GIT)',
+  cookie: {}
+}));
+
+
 app.use(morgan('combined'));
 const bodyParser = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
@@ -31,13 +40,13 @@ passport.use(new OAuth2Strategy(config.oauth2,
 var bodyParameters = {
    key: "value"
 }
-console.log("OAUTH-GEEEEET")
-Axios.get( 
+console.log("OAUTH-GEEEEET general")
+axios.get( 
   config.oauth2.rootURL+'api/user',
   bodyParameters,
   aconfig
 ).then((response) => {
-  console.log("OAUTH-GEEEEET")
+  console.log("OAUTH-GEEEEET response")
   console.log(response)
   return cb(false, response);
 }).catch((error) => {
@@ -60,7 +69,7 @@ app.get('/logintest',
     res.redirect('/');
   });
 app.get('/auth/callback',
-  passport.authorize('oauth2', { failureRedirect: '/login' }),
+  passport.authorize('oauth2', { failureRedirect: '/?NOSUCCESS' }),
   function(req, res) {
     // Successful authentication, redirect home.
     console.log("CALLBACK success")
@@ -78,6 +87,23 @@ app.get('/login',
   session: true,
   successReturnToOrRedirect: '/'
 }));
+
+OAuth2Strategy.prototype.authenticate = function(req, options) {
+  // ...
+  
+  if (req.query && req.query.error) {
+    // fail authentication sequence
+    console.log("FAIL AUTH")
+  }
+
+  if (req.query && req.query.code) {
+    // process the callback from the identity provider
+    console.log("PROCESS CALLBACK")
+  } else {
+    // start the authentication sequence
+    console.log("START AUTH (last step?)")
+  }
+};
 
 app.use(fileUpload({
   limits: { fileSize: 50 * 1024 * 1024* 1024 },
