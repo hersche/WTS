@@ -64,7 +64,7 @@ function rmSeed(id){
 }
 
 router.route('/').get((req, res, next) => {
-  res.render('main', { seeds: seedsList }, { plain: true, inlineCSS: false });
+  res.render('main', { seeds: seedsList, user:req.user }, { plain: true, inlineCSS: false });
 });
 
 router.route('/delete/:id').get((req, res, next) => {
@@ -81,7 +81,7 @@ router.route('/delete/:id').get((req, res, next) => {
     rmSeed(Number(req.params.id))
     console.log(`Delete a row ${this.lastID}`);
   });
-  res.render('delete', { seeds: seedsList }, { plain: true, inlineCSS: false });  
+  res.render('delete', { seeds: seedsList, user:req.user }, { plain: true, inlineCSS: false });  
 });
 
 

@@ -33,14 +33,16 @@ passport.use(new OAuth2Strategy(config.oauth2,
     //User.findOrCreate({ exampleId: profile.id }, function (err, user) {
       ui++
       if(accessToken!=''){
+        axios.defaults.headers.common = {'Authorization': 'Bearer '+accessToken}
       var aconfig = {
-    headers: {'Authorization': "bearer " + accessToken}
+    headers: {'Authorization': 'bearer ' + accessToken}
 };
 
 var bodyParameters = {
-   key: "value"
+   uid: 1
 }
 console.log("OAUTH-GEEEEET general")
+
 axios.get( 
   config.oauth2.rootURL+'api/user',
   bodyParameters,
@@ -48,8 +50,15 @@ axios.get(
 ).then((response) => {
   console.log("OAUTH-GEEEEET response")
   console.log(response)
-  return cb(false, response);
+  passport.serializeUser(function(user, done) {
+  done(null, user);
+  });
+passport.deserializeUser(function(user, done) {
+  done(null, user);
+});
+  return cb(false, response.data);
 }).catch((error) => {
+  console.log("CATCH USER-REQUES")
   console.log(error)
   return cb(false, false);
 });
@@ -66,14 +75,20 @@ app.get('/logintest',
   function(req, res) {
     // Successful authentication, redirect home.
     console.log("login-test-success")
-    res.redirect('/');
+    console.log(req.user)
+    res.redirect('/?');
   });
-app.get('/auth/callback',
-  passport.authorize('oauth2', { failureRedirect: '/?NOSUCCESS' }),
+  app.get('/logout',
+    ensureLoggedIn('/login'),
+    function(req, res) {
+      // Successful authentication, redirect home.
+      req.logout()
+      res.redirect('/?LOGOUT');
+    });
+  app.get('/auth/callback',
+  passport.authenticate('oauth2', { failureRedirect: '/?NOSUCCESS' }),
   function(req, res) {
     // Successful authentication, redirect home.
-    console.log("CALLBACK success")
-    
     res.redirect('/');
   });
   
@@ -83,11 +98,8 @@ app.get('/auth/callback',
       res.render('upload', { myVar1: 'my variable one' }, { plain: true, inlineCSS: false });
     });
 app.get('/login',
-  passport.authenticate('oauth2', {
-  session: true,
-  successReturnToOrRedirect: '/'
-}));
-
+  passport.authenticate('oauth2'));
+/*
 OAuth2Strategy.prototype.authenticate = function(req, options) {
   // ...
   
@@ -104,7 +116,7 @@ OAuth2Strategy.prototype.authenticate = function(req, options) {
     console.log("START AUTH (last step?)")
   }
 };
-
+*/
 app.use(fileUpload({
   limits: { fileSize: 50 * 1024 * 1024* 1024 },
 }));
