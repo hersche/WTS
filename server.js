@@ -6,6 +6,7 @@ const axios = require('axios')
 var config = require('./config');
 const fileUpload = require('express-fileupload');
 const morgan = require('morgan');
+
 require('http').globalAgent.options.rejectUnauthorized = false;
 require('https').globalAgent.options.rejectUnauthorized = false;
 const app = express();
@@ -46,7 +47,7 @@ console.log("OAUTH-GEEEEET general")
 axios.get( 
   config.oauth2.rootURL+'api/user',
   bodyParameters,
-  aconfig
+  //aconfig
 ).then((response) => {
   console.log("OAUTH-GEEEEET response")
   console.log(response)
@@ -56,7 +57,10 @@ axios.get(
 passport.deserializeUser(function(user, done) {
   done(null, user);
 });
+if(response.data.data==undefined){
   return cb(false, response.data);
+}
+  return cb(false, response.data.data);
 }).catch((error) => {
   console.log("CATCH USER-REQUES")
   console.log(error)
@@ -70,6 +74,7 @@ passport.deserializeUser(function(user, done) {
   }
 ));
 const { ensureLoggedIn } = require('connect-ensure-login');
+app.use(express.static('public/css'));
 app.get('/logintest',
   ensureLoggedIn('/login'),
   function(req, res) {
@@ -133,8 +138,9 @@ let options = {
     metaInfo: {
       title: 'Default Title'
     },
+    
     // extract css to file, otherwise it will be inline
-    extractCSS: true,
+    extractCSS: false,
     // css output folder, extracted styles from your *.vue files
     cssOutputPath: 'css/style.css',
     // path to your web root
@@ -146,6 +152,7 @@ let options = {
     plugins: [
         // vue plugins
         // require('your-plugin')
+        require('vuetify')
     ],
     compilerConfig: {
         // custom webpack config

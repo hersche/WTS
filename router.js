@@ -62,11 +62,19 @@ function rmSeed(id){
   seedsList = tmpSeeds
   return tmpSeeds
 }
-
+router.route('/seedList').get((req, res, next) => {
+  //res.sendFile('index.html');
+  res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(seedsList));
+  //res.render('main', { seeds: seedsList, user:req.user }, { plain: true, inlineCSS: false });
+});
 router.route('/').get((req, res, next) => {
+  //res.sendFile('index.html');
   res.render('main', { seeds: seedsList, user:req.user }, { plain: true, inlineCSS: false });
 });
-
+//router.route('/public/css/style.css').get((req, res, next) => {
+  //res.send(require('vuetify/dist/vuetify.min.css').toString())
+//});
 router.route('/delete/:id').get((req, res, next) => {
   var theRow = getRowById(Number(req.params.id))
   fs.unlink(theRow.filePath, (err) => {

@@ -1,5 +1,6 @@
 <template>
     <div>
+      <navi v-bind:user="user"></navi>
         <h2>Start</h2>
         <p v-if="user!=undefined">
           Logged in as {{ user.name }}
@@ -21,12 +22,15 @@
     </div>
 </template>
 <script>
-
+import nav from './nav.vue'
 module.exports = {
     data() {
         return {
           seeds:[]
         };
+    },
+    components : {
+        'navi': nav
     },
 }
 </script>
