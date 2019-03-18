@@ -10,7 +10,7 @@ const router = express.Router();
 // const Vue = require('vue')
 const sqlite3 = require('sqlite3').verbose();
 let db = new sqlite3.Database('./wts.db');
-db.run('CREATE TABLE IF NOT EXISTS seeds (id INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR(100),filePath VARCHAR(255), magnetURL TEXT);', [], (err) => {  
+db.run('CREATE TABLE IF NOT EXISTS seeds (id INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR(100),filePath VARCHAR(255), magnetURL TEXT NOT NULL);', [], (err) => {  
   if (err) {
     console.log('ERROR ON CREATE TABLE!', err)
   }
@@ -18,7 +18,7 @@ db.run('CREATE TABLE IF NOT EXISTS seeds (id INTEGER PRIMARY KEY AUTOINCREMENT, 
 })
 
 
-function refreshSeeds(){
+function refreshSeeds(cb=undefined){
   var tmpSeeds = []
   db.all("SELECT * FROM seeds", [], (err, rows) => {
   if (err) {
@@ -39,6 +39,9 @@ function refreshSeeds(){
     
   });
   seedsList = tmpSeeds
+  if(cb!=undefined){
+    cb(seedsList)
+  }
 });
 }
 
@@ -68,6 +71,12 @@ router.route('/seedList').get((req, res, next) => {
     res.end(JSON.stringify(seedsList));
   //res.render('main', { seeds: seedsList, user:req.user }, { plain: true, inlineCSS: false });
 });
+router.route('/user').get((req, res, next) => {
+  //res.sendFile('index.html');
+  res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(req.user));
+  //res.render('main', { seeds: seedsList, user:req.user }, { plain: true, inlineCSS: false });
+});
 router.route('/').get((req, res, next) => {
   //res.sendFile('index.html');
   res.render('main', { seeds: seedsList, user:req.user }, { plain: true, inlineCSS: false });
@@ -89,7 +98,8 @@ router.route('/delete/:id').get((req, res, next) => {
     rmSeed(Number(req.params.id))
     console.log(`Delete a row ${this.lastID}`);
   });
-  res.render('delete', { seeds: seedsList, user:req.user }, { plain: true, inlineCSS: false });  
+  res.setHeader('Content-Type', 'application/json');
+  res.end(JSON.stringify(seedsList)); 
 });
 
 
@@ -104,13 +114,15 @@ router.route('/upload').post((req, res, next) => {
     if (err) {
       return console.log(err.message);
     }
+    refreshSeeds(function(sl){
+      res.setHeader('Content-Type', 'application/json');
+      res.end("{'msg':'Upload success'}"); 
+    })
+
     // get the last insert id
     console.log(`A row has been inserted with rowid ${this.lastID}`);
   });
-  let data = function() {
-      tree: []
-  };
-  refreshSeeds()
-  res.render('uploaded', { seeds: seedsList }, { plain: true, inlineCSS: false });
+
+  //res.render('uploaded', { seeds: seedsList }, { plain: true, inlineCSS: false });
 });
 module.exports = router; 

@@ -13,7 +13,7 @@ const app = express();
 const session = require('express-session');
 
 app.use(session({
-  secret: 'lulSec(cause@GIT)',
+  secret: config.cookieKey,
   cookie: {}
 }));
 
