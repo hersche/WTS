@@ -7,7 +7,7 @@
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items class="">
-        <v-btn small flat icon="true" @click="refreshSeeds()">
+        <v-btn small flat icon="true" title="Refresh seeds" @click="refreshSeeds()">
           <v-icon>refresh</v-icon>
         </v-btn>
         <v-btn small flat to="/">
@@ -30,12 +30,12 @@
 
     <v-content>
       <v-container fluid fill-height>
-  <v-layout justify-center>
-<v-flex xs12 md11 lg10>
-      <router-view/>
-    </v-flex>
-  </v-layout>
-</v-container>
+        <v-layout justify-center>
+          <v-flex xs12 md11 lg10>
+            <router-view/>
+          </v-flex>
+        </v-layout>
+      </v-container>
     </v-content>
   </v-app>
 </template>
@@ -45,18 +45,14 @@ import {store} from './store'
 const axios = require('axios');
 export default {
   name: "App",
-  components: {
-    
-  },
+  components: {},
   methods: {
     refreshSeeds(){
       axios.get('/api/seedList')
         .then(function (response) {
-          // handle success
           store.commit("setSeeds",response.data)
         })
         .catch(function (error) {
-          // handle error
           console.log(error);
         });
     }
@@ -68,7 +64,6 @@ export default {
   },
   data() {
     return {
-      //
     };
   }
 };

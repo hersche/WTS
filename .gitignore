@@ -2,6 +2,8 @@
 node_modules
 /dist
 wts.db
+thewts.db
+/tmp
 config.js
 uploads/
 package-lock.json

@@ -1,8 +1,8 @@
 <template>
   <div>
-    <h1>Home</h1>
-    <p>This project is about upload and seed files.</p>
-    <p>Below is a list with all uploaded files. Checkout <router-link to="/about">About</router-link> for more infos.</p>
+    <h1 class="text-xs-center">Home</h1>
+    <p class="text-xs-center">This project is about upload and seed files.</p>
+    <p class="text-xs-center">Below is a list with all uploaded files. Checkout <router-link to="/about">About</router-link> for more infos.</p>
     <v-card>
     <v-card-title>
     Seeds
@@ -23,9 +23,9 @@
   <template v-slot:items="props">
     <td class="text-xs-center">{{ props.item.id }}</td>
     <td class="text-xs-center">{{ props.item.title }}</td>
-    <td class="text-xs-center"><a :href="props.item.magnetURL" >{{ props.item.magnetURL }}</a></td>
+    <td class="text-xs-center"><a v-if="props.item.magnetURL!=''" :href="props.item.magnetURL" >{{ props.item.magnetURL }}</a> <span v-if="props.item.magnetURL==''">Never seeding yet, take a sec - try refresh</span></td>
     <td class="text-xs-center"><a target="_blank" :href="props.item.filePath" >{{ props.item.filePath }}</a></td>
-    <td class="text-xs-center" v-if="user!=undefined"><v-btn @click="prepareDeleteSeed(props.item.id)" icon="true"><v-icon>delete</v-icon></v-btn></td>
+    <td class="text-xs-center" v-if="user!=undefined"><v-btn v-if="((user.id==props.item.userid)||(user.admin))" @click="prepareDeleteSeed(props.item.id)" icon="true"><v-icon>delete</v-icon></v-btn></td>
   </template>
 </v-data-table>
 </v-card>
@@ -119,11 +119,11 @@
         ]
         if(this.user!=undefined){
           headers = [
-            { text: 'ID', value: 'id' },
-            { text: 'Title', value: 'title' },
-            { text: 'Magnet URL', value: 'magnetURL' },
-            { text: 'Direct URL', value: 'filePath' },
-            { text: 'Delete', value: 'delete' }
+            { text: 'ID', value: 'id', class:'text-xs-center' },
+            { text: 'Title', value: 'title', class:'text-xs-center' },
+            { text: 'Magnet URL', value: 'magnetURL', class:'text-xs-center' },
+            { text: 'Direct URL', value: 'filePath' , class:'text-xs-center'},
+            { text: 'Delete', value: 'delete' , class:'text-xs-center'}
           ]
         }
         return headers
