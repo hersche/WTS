@@ -8,7 +8,6 @@ It's
 
 - my first expirience with Node / serverside-JS / express-JS
 - a thing i was waiting for, but i did not found it
-- a short work and learn of ~15h (will increase for quality, maybe)
 - a additional to LaraTube
 
 Ideas
@@ -17,6 +16,6 @@ Ideas
 
 ## Questions?
 
-Check out the wiki:
+Check out the wiki for the setup:
 
 https://gitlab.com/hersche/wts/wikis/home
