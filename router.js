@@ -66,24 +66,14 @@ function rmSeed(id){
   return tmpSeeds
 }
 router.route('/seedList').get((req, res, next) => {
-  //res.sendFile('index.html');
   res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(seedsList));
-  //res.render('main', { seeds: seedsList, user:req.user }, { plain: true, inlineCSS: false });
+  res.end(JSON.stringify(seedsList));
 });
 router.route('/user').get((req, res, next) => {
-  //res.sendFile('index.html');
   res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(req.user));
-  //res.render('main', { seeds: seedsList, user:req.user }, { plain: true, inlineCSS: false });
+  res.end(JSON.stringify(req.user));
 });
-router.route('/').get((req, res, next) => {
-  //res.sendFile('index.html');
-  res.render('main', { seeds: seedsList, user:req.user }, { plain: true, inlineCSS: false });
-});
-//router.route('/public/css/style.css').get((req, res, next) => {
-  //res.send(require('vuetify/dist/vuetify.min.css').toString())
-//});
+
 router.route('/delete/:id').get((req, res, next) => {
   var theRow = getRowById(Number(req.params.id))
   fs.unlink(theRow.filePath, (err) => {
@@ -94,12 +84,12 @@ router.route('/delete/:id').get((req, res, next) => {
     if (err) {
       return console.log(err.message);
     }
-    // get the last insert id
     rmSeed(Number(req.params.id))
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(seedsList)); 
     console.log(`Delete a row ${this.lastID}`);
   });
-  res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify(seedsList)); 
+
 });
 
 

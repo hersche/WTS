@@ -3,11 +3,22 @@
     <h1>Home</h1>
     <p>This project is about upload and seed files.</p>
     <p>Below is a list with all uploaded files. Checkout <router-link to="/about">About</router-link> for more infos.</p>
-    
+    <v-card>
+    <v-card-title>
+    Seeds
+    <v-spacer></v-spacer>
+    <v-text-field
+  v-model="search"
+  append-icon="search"
+  label="Search"
+  single-line
+  hide-details
+></v-text-field>
+</v-card-title>
     <v-data-table
   :headers="seedTableHeaders"
   :items="seeds"
-  class="elevation-1"
+  :search="searchInput"
 >
   <template v-slot:items="props">
     <td class="text-xs-center">{{ props.item.id }}</td>
@@ -17,7 +28,7 @@
     <td class="text-xs-center" v-if="user!=undefined"><v-btn @click="prepareDeleteSeed(props.item.id)" icon="true"><v-icon>delete</v-icon></v-btn></td>
   </template>
 </v-data-table>
-
+</v-card>
     <v-dialog
       v-model="deleteDialog"
       max-width="290"
@@ -87,6 +98,12 @@
       }
     },
     computed:{
+      searchInput:function(){
+        if(this.search==''){
+          return undefined
+        }
+        return this.search
+      },
       user:function(){
         return store.state.user
       },
@@ -115,7 +132,8 @@
     data () {
       return {
         deleteDialog:false,
-        deleteId:0
+        deleteId:0,
+        search:undefined
       }
     },
   }

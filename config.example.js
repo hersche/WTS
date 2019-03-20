@@ -1,7 +1,12 @@
 module.exports = {
   // Set your public viewable url here
+  serverPort:8001,
   rootUrl:'http://127.0.0.1:8001/',
   cookieKey:'lulSec(cause@GIT)',
+  db:{
+    dialect:"sqlite",
+    path:"./thewts.db"
+  },
   oauth2:{
     rootURL:'http://127.0.0.1:8000/',
     authorizationURL: 'http://127.0.0.1:8000/oauth/authorize',

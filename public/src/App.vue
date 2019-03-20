@@ -29,7 +29,13 @@
     </v-toolbar>
 
     <v-content>
+      <v-container fluid fill-height>
+  <v-layout justify-center>
+<v-flex xs12 md11 lg10>
       <router-view/>
+    </v-flex>
+  </v-layout>
+</v-container>
     </v-content>
   </v-app>
 </template>
