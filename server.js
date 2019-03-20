@@ -1,6 +1,7 @@
 const express = require('express');
 const os = require('os');
 const fs = require('fs');
+var seedsList = [];
 const axios = require('axios')
 var config = require('./config');
 const fileUpload = require('express-fileupload');
@@ -48,16 +49,14 @@ const Seed = sequelize.define('seed', {
   }
 });
 sequelize.sync();
-var seedsList = [];
+
 refreshSeeds();
 
-var ui = 0
 const passport = require('passport'), OAuth2Strategy = require('passport-oauth2')
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new OAuth2Strategy(config.oauth2,
   function(accessToken, refreshToken, profile, cb) {
-      ui++
       if(accessToken!=''){
         axios.defaults.headers.common = {'Authorization': 'Bearer '+accessToken}
         console.log("OAUTH-GEEEEET general")
@@ -87,7 +86,10 @@ const { ensureLoggedIn } = require('connect-ensure-login');
 app.use(express.static('public/css'));
 app.use(fileUpload({
   useTempFiles : true,
-  tempFileDir : './tmp/'
+  tempFileDir : './tmp/',
+  limits: {
+    fileSize: config.uploadLimitSize*1000000 //1mb
+},
 }));
 app.use(bodyParser.json());
 var activeSeedList = [];
@@ -98,63 +100,15 @@ var activeSeedList = [];
       res.redirect('/?LOGOUT');
     });
   app.get('/auth/callback',
-  passport.authenticate('oauth2', { failureRedirect: '/?NOSUCCESS' }),
-  function(req, res) {
-    res.redirect('/');
-  });
+    passport.authenticate('oauth2', { failureRedirect: '/?NOSUCCESS' }),
+    function(req, res) {
+      res.redirect('/');
+    });
   app.get('/login', passport.authenticate('oauth2'));
 
-function refreshSeeds(cb=undefined){
-  Seed.findAll().then(seeds => {
-    seedsList = seeds
-    seeds.forEach((row) => {
-      if(activeSeedList.includes(row.id)==false){
-        activeSeedList.push(row.id);
-        client.seed(row.filePath,{announce:config.rootUrl},function(torrent){
-          if(row.magnetURL==""){
-            Seed.update({ magnetURL: torrent.magnetURI }, {
-              where: {
-                id: row.id
-              }
-            }).then(() => {
-              sequelize.sync();
-              Seed.findAll().then(seeds2 => {
-                seedsList = seeds2
-              });
-              
-            });
-          }
-          console.log("do SEED "+torrent.magnetURI)
-        })
-      }
-      
-    });
-    if(cb!=undefined){
-      cb(seedsList)
-    }
-  });
-}
 
-function getRowById(id){
-  var rVal = undefined
-  seedsList.forEach((row) => {
-    if(row.id==id){
-      rVal = row
-    }
-  });
-  return rVal
-}
 
-function rmSeed(id){
-  var tmpSeeds = []
-  seedsList.forEach((row) => {
-    if(row.id!=id){
-      tmpSeeds.push(row)
-    }
-  });
-  seedsList = tmpSeeds
-  return tmpSeeds
-}
+
 
 app.get('/seedList',
   function(req, res) {
@@ -184,7 +138,7 @@ app.post('/upload',
   app.get('/delete/:id',
     ensureLoggedIn('/api/login'),
     function(req, res) {
-      var theRow = getRowById(Number(req.params.id))
+      var theRow = getSeedById(Number(req.params.id))
       if(req.user.id==theRow.userid||req.user.admin){
         fs.unlink(theRow.filePath, (err) => {
           if (err) throw err;
@@ -211,3 +165,56 @@ app.post('/upload',
 app.listen(config.serverPort, () => {
   console.log('Server started at port '+config.serverPort);
 });
+
+
+function refreshSeeds(cb=undefined){
+  Seed.findAll().then(seeds => {
+    seedsList = seeds
+    seeds.forEach((row) => {
+      if(activeSeedList.includes(row.id)==false){
+        activeSeedList.push(row.id);
+        client.seed(row.filePath,{announce:config.rootUrl},function(torrent){
+          if(row.magnetURL==""){
+            Seed.update({ magnetURL: torrent.magnetURI }, {
+              where: {
+                id: row.id
+              }
+            }).then(() => {
+              sequelize.sync();
+              Seed.findAll().then(seeds2 => {
+                seedsList = seeds2
+              });
+              
+            });
+          }
+          console.log("Start seeding url "+torrent.magnetURI)
+        })
+      }
+      
+    });
+    if(cb!=undefined){
+      cb(seedsList)
+    }
+  });
+}
+
+function getSeedById(id){
+  var rVal = undefined
+  seedsList.forEach((row) => {
+    if(row.id==id){
+      rVal = row
+    }
+  });
+  return rVal
+}
+
+function rmSeed(id){
+  var tmpSeeds = []
+  seedsList.forEach((row) => {
+    if(row.id!=id){
+      tmpSeeds.push(row)
+    }
+  });
+  seedsList = tmpSeeds
+  return tmpSeeds
+}

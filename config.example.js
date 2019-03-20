@@ -2,6 +2,7 @@ module.exports = {
   serverPort:8001, /* The port for nginx or apache */
   rootUrl:'https://wts.url/', /* http://127.0.0.1:8001 for dev */
   cookieKey:'lulSec(cause@GIT)', /* Choose another key here */
+  uploadLimitSize: 1000, /* In Mb */
   db:{
     dialect:"sqlite", /* one of 'mysql' | 'mariadb' | 'postgres' | 'mssql' | 'sqlite' */
     path:"./wts.db", /* only for sqlite */
