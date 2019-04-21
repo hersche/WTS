@@ -1,8 +1,10 @@
 const express = require('express');
 const os = require('os');
 const fs = require('fs');
+var crypto = require('crypto');
 var seedsList = [];
 const axios = require('axios')
+var ffmpeg = require('fluent-ffmpeg');
 var config = require('./config');
 const fileUpload = require('express-fileupload');
 const WebTorrent = require('webtorrent-hybrid');
@@ -11,7 +13,6 @@ require('http').globalAgent.options.rejectUnauthorized = false;
 require('https').globalAgent.options.rejectUnauthorized = false;
 const app = express();
 const session = require('express-session');
-
 app.use(session({
   secret: config.cookieKey,
   cookie: {}
@@ -42,8 +43,10 @@ const Seed = sequelize.define('seed', {
   },
   magnetURL: {
     type: Sequelize.STRING
-  }
-  ,
+  },
+  fileHash: {
+    type: Sequelize.STRING
+  },
   userid: {
     type: Sequelize.INTEGER
   }
@@ -104,10 +107,7 @@ var activeSeedList = [];
     function(req, res) {
       res.redirect('/');
     });
-  app.get('/login', passport.authenticate('oauth2'));
-
-
-
+  app.get('/login', passport.authenticate('oauth2',{ scope: 'profile notifications' }));
 
 
 app.get('/seedList',
@@ -121,18 +121,49 @@ app.get('/user',
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(req.user));
   });
-
+  
+  
+  function checksum(str, algorithm, encoding) {
+    return crypto
+      .createHash(algorithm || 'md5')
+      .update(str, 'utf8')
+      .digest(encoding || 'hex')
+  }
 app.post('/upload',
   ensureLoggedIn('/api/login'),
   function(req, res) {
     req.files.theFile.mv("uploads/"+req.files.theFile.name)
-    Seed.create({ title: req.body.title, filePath: "uploads/"+req.files.theFile.name,magnetURL:"",userid:req.user.id }).then(theRow => {
-      sequelize.sync();
-      refreshSeeds(function(sl){
-        res.setHeader('Content-Type', 'application/json');
-        res.end("{'msg':'Upload success'}"); 
-      })
-    });
+    /* ffmpeg('/path/to/file.avi').output('outputfile.mp4')
+      .audioCodec('libfaac')
+      .videoCodec('libx264')
+      .size('320x200') */
+    //  var fd = fs.createReadStream("uploads/"+req.files.theFile.name);
+      
+    fs.readFile("uploads/"+req.files.theFile.name, function(err, data) {
+
+      var theHash = checksum(data, 'sha1')
+
+      console.log("fileHash",theHash)
+      Seed.count({
+        where: {
+          fileHash: theHash
+        }
+      }).then(count => {
+        console.log("counted entrys",count)
+        if(count==0){
+          Seed.create({ title: req.body.title, fileHash:theHash, filePath: "uploads/"+req.files.theFile.name,magnetURL:"",userid:req.user.id }).then(theRow => {
+            sequelize.sync();
+            refreshSeeds(function(sl){
+              res.setHeader('Content-Type', 'application/json');
+              res.end("{'msg':'Upload success'}"); 
+            })
+          });          
+        } else {
+          res.setHeader('Content-Type', 'application/json');
+          res.end("{'msg':'Upload fail, file exists already'}"); 
+        }
+      });
+    })
   });
 
   app.get('/delete/:id',
@@ -187,7 +218,7 @@ function refreshSeeds(cb=undefined){
               
             });
           }
-          console.log("Start seeding url "+torrent.magnetURI)
+          console.log("Start seeding url "+torrent.magnetURI,row.fileHash)
         })
       }
       

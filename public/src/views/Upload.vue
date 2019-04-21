@@ -2,10 +2,23 @@
   <div class="about">
     <h1>Upload file</h1>
     <form method="post" action="/api/upload" enctype="multipart/form-data">
-      <v-text-field name="title" id="title" label="Title"></v-text-field>
+      <v-text-field name="title" id="title" :label="$t('Title')"></v-text-field>
       <input type="file" name="theFile" id="theFile">
     </form>
-    <v-btn @click="uploadSeed()">Upload</v-btn>
+    <v-btn @click="uploadSeed()">{{ $t('Upload') }}</v-btn>
+    <v-snackbar
+     v-model="showMsg"
+     timeout="6000"
+   >
+     {{ msg }}
+     <v-btn
+       dark
+       flat
+       @click="showMsg = false"
+     >
+       Close
+     </v-btn>
+   </v-snackbar>
   </div>
 </template>
 <script>
@@ -29,6 +42,9 @@
         axios.post('/api/upload',data,config)
           .then(function (response) {
             // handle success
+            //this.msg = response.msg
+            console.log("upload-answer",response)
+            that.showMsg=true
             axios.get('/api/seedList')
               .then(function (response) {
                 // handle success
@@ -77,6 +93,7 @@
     },
     data () {
   return {
+    showMsg:false
   }
 },
     components: {
